@@ -382,7 +382,9 @@ __out__ = _out.getvalue()
       const lines = raw.split('\n').map(l=>l.trim()).filter(l => {
         if (!l) return false;
         // กรองบรรทัด prompt ออก
-        return !inputs.some(v => l.endsWith(v));
+    
+           const prompts = ["Enter base:", "Enter height:"];
+           return !prompts.some(p => l.startsWith(p));
       });
       const got = lines[lines.length-1] || '';
       r[i] = { status: got===tc.expected?'pass':'fail' };
