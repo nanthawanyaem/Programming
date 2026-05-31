@@ -47,6 +47,7 @@ body{font-family:'DM Sans',sans-serif;background:#f5f4f0;color:#1a1a18;padding:1
 .tc-dot.pass{background:#dcfce7;color:#16a34a;border-color:transparent}
 .tc-dot.fail{background:#fee2e2;color:#dc2626;border-color:transparent}
 .tc-dot.err{background:#fef3c7;color:#d97706;border-color:transparent}
+.tc-dot.prompt-fail{background:#fce7f3;color:#9d174d;border-color:transparent}
 .tc-label{font-size:12px;color:#9a9a94;margin-bottom:12px;margin-top:5px}
 textarea{width:100%;min-height:120px;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.75;background:#f5f4f0;color:#1a1a18;border:1px solid rgba(0,0,0,0.15);border-radius:8px;padding:12px;resize:vertical;outline:none;transition:border-color .2s}
 textarea:focus{border-color:rgba(0,0,0,0.4)}
@@ -55,6 +56,8 @@ textarea:focus{border-color:rgba(0,0,0,0.4)}
 .btn:disabled{opacity:.35;cursor:not-allowed}
 .error-msg{margin-top:8px;padding:9px 12px;background:#fee2e2;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#dc2626;white-space:pre-wrap;display:none;line-height:1.6}
 .error-msg.show{display:block}
+.prompt-msg{margin-top:8px;padding:9px 12px;background:#fce7f3;border-radius:8px;font-size:12px;color:#9d174d;display:none;line-height:1.6}
+.prompt-msg.show{display:block}
 .summary{margin-top:12px;padding:14px 16px;border-radius:10px;border:1px solid rgba(0,0,0,0.08);background:#f5f4f0;display:none}
 .summary.show{display:block}
 .sum-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
@@ -73,7 +76,6 @@ textarea:focus{border-color:rgba(0,0,0,0.4)}
 .ov-lbl{font-size:11px;color:#9a9a94;margin-top:2px}
 .submit-status{margin-top:10px;padding:10px 14px;border-radius:8px;background:#dcfce7;color:#15803d;font-size:13px;font-weight:500;display:none;text-align:center}
 .submit-status.show{display:block}
-.submit-status.error{background:#fee2e2;color:#dc2626}
 .dot{display:inline-block;animation:blink 1.2s infinite}
 .dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
 @keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
@@ -85,15 +87,10 @@ textarea:focus{border-color:rgba(0,0,0,0.4)}
      แก้เฉพาะส่วนนี้ทุกสัปดาห์
      ============================================================ -->
 <script>
-// ── ข้อมูลสัปดาห์ ──────────────────────────────────────────
 const WEEK       = 1;
 const WEEK_TOPIC = "การรับค่าและแสดงผล";
+const SHEET_URL  = "YOUR_APPS_SCRIPT_URL_HERE";
 
-// ── Google Apps Script Web App URL ─────────────────────────
-// วาง URL ที่ได้จาก Deploy ตรงนี้
-const SHEET_URL  = "https://script.google.com/macros/s/AKfycbwwEGyf_TqvCdnN-ZuNXw_YexEVGviTiBCzsljUUCnJVBSXNj1BcuCbhTHq4NSYLtp-/exec";
-
-// ── โจทย์ ───────────────────────────────────────────────────
 const PROBLEMS = [
   {
     id: 1,
@@ -104,7 +101,8 @@ const PROBLEMS = [
       { input: "Enter mins: 1",  output: "60 secs" },
     ],
     testCases: [
-      { input: ["20"],  expected: "1200 secs" },
+      // checkPrompts = เช็คว่า prompt ถูกต้องไหม (ใส่แค่ 1 test case พอ)
+      { input: ["20"], expected: "1200 secs", checkPrompts: ["Enter mins: "] },
       { input: ["1"],   expected: "60 secs" },
       { input: ["60"],  expected: "3600 secs" },
       { input: ["0"],   expected: "0 secs" },
@@ -117,11 +115,11 @@ const PROBLEMS = [
     title: "คำนวณพื้นที่สามเหลี่ยม",
     desc: "รับ <code>base</code> และ <code>height</code> แล้วแสดงพื้นที่รูปแบบ <code>Area = X.XX</code> (ทศนิยม 2 ตำแหน่ง)",
     examples: [
-      { input: "Base: 6\nHeight: 4", output: "Area = 12.00" },
-      { input: "Base: 3\nHeight: 5", output: "Area = 7.50" },
+      { input: "Enter base: 6\nEnter height: 4", output: "Area = 12.00" },
+      { input: "Enter base: 3\nEnter height: 5", output: "Area = 7.50" },
     ],
     testCases: [
-      { input: ["6","4"],  expected: "Area = 12.00" },
+      { input: ["6","4"],  expected: "Area = 12.00", checkPrompts: ["Enter base: ", "Enter height: "] },
       { input: ["3","5"],  expected: "Area = 7.50" },
       { input: ["10","2"], expected: "Area = 10.00" },
       { input: ["1","1"],  expected: "Area = 0.50" },
@@ -138,7 +136,7 @@ const PROBLEMS = [
       { input: "Enter number: 7", output: "Odd" },
     ],
     testCases: [
-      { input: ["4"],   expected: "Even" },
+      { input: ["4"],   expected: "Even", checkPrompts: ["Enter number: "] },
       { input: ["7"],   expected: "Odd" },
       { input: ["0"],   expected: "Even" },
       { input: ["-3"],  expected: "Odd" },
@@ -152,8 +150,6 @@ const PROBLEMS = [
      จบส่วนที่แก้
      ============================================================ -->
 
-
-<!-- UI -->
 <div class="week-header">
   <div class="week-badge" id="wb"></div>
   <div class="week-title" id="wt"></div>
@@ -192,6 +188,7 @@ const PROBLEMS = [
   <div class="tc-label" id="tc-label">— ยังไม่ได้ส่ง</div>
   <textarea id="code" spellcheck="false" placeholder="# เขียนโค้ดของคุณที่นี่..."></textarea>
   <div id="error-msg" class="error-msg"></div>
+  <div id="prompt-msg" class="prompt-msg"></div>
   <button class="btn" id="submit-btn" onclick="runTests()">ส่งคำตอบ</button>
   <div class="summary" id="summary">
     <div class="sum-row">
@@ -213,15 +210,12 @@ let currentIdx = 0;
 const state = PROBLEMS.map(p => ({
   results: p.testCases.map(() => ({ status: 'pending' })),
   code: '',
-  submitted: false,
 }));
 
 document.getElementById('wb').textContent = `สัปดาห์ที่ ${WEEK}`;
 document.getElementById('wt').textContent = WEEK_TOPIC;
 
 function validate() {
-  const n = document.getElementById('sname').value.trim();
-  const s = document.getElementById('sid').value.trim();
   let ok = true;
   ['sname','sid'].forEach((id,i) => {
     const el = document.getElementById(id);
@@ -265,12 +259,15 @@ function renderOverall() {
 
 function renderDots(idx) {
   const r = state[idx].results;
+  const p = PROBLEMS[idx];
   document.getElementById('tc-row').innerHTML = r.map((res,i) => {
-    let cls='',icon=i+1;
-    if (res.status==='pass'){cls='pass';icon='✓';}
-    else if (res.status==='fail'){cls='fail';icon='✗';}
-    else if (res.status==='err'){cls='err';icon='!';}
-    return `<div class="tc-dot ${cls}">${icon}</div>`;
+    let cls='', icon=i+1;
+    if (res.status==='pass')         { cls='pass';        icon='✓'; }
+    else if (res.status==='fail')    { cls='fail';        icon='✗'; }
+    else if (res.status==='err')     { cls='err';         icon='!'; }
+    else if (res.status==='prompt-fail') { cls='prompt-fail'; icon='P'; }
+    const isPromptCheck = p.testCases[i]?.checkPrompts;
+    return `<div class="tc-dot ${cls}" title="${isPromptCheck?'เช็ค prompt':''}">${icon}</div>`;
   }).join('');
   const passed = r.filter(x=>x.status==='pass').length;
   document.getElementById('tc-label').textContent =
@@ -292,6 +289,7 @@ function switchTab(i) {
     </div>`).join('');
   document.getElementById('code').value = state[i].code;
   document.getElementById('error-msg').classList.remove('show');
+  document.getElementById('prompt-msg').classList.remove('show');
   document.getElementById('submit-status').classList.remove('show');
   const r = state[i].results;
   const anyDone = r.some(x=>x.status!=='pending');
@@ -314,54 +312,9 @@ function switchTab(i) {
   document.getElementById('submit-btn').textContent = 'ส่งคำตอบ';
 }
 
-async function saveToSheet(name, sid, probIdx, passed, total) {
-  if (!SHEET_URL || SHEET_URL === 'YOUR_APPS_SCRIPT_URL_HERE') return;
-  const p = PROBLEMS[probIdx];
-  try {
-    await fetch(SHEET_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        week:    WEEK,
-        name:    name,
-        sid:     sid,
-        probId:  p.id,
-        title:   p.title,
-        passed:  passed,
-        total:   total,
-        time:    new Date().toLocaleString('th-TH'),
-      }),
-    });
-  } catch(e) { console.warn('Sheet save failed:', e); }
-}
-
-async function runTests() {
-  if (!pyReady) return;
-  if (!validate()) return;
-  const code = document.getElementById('code').value;
-  if (!code.trim()) return;
-  state[currentIdx].code = code;
-
-  const errEl = document.getElementById('error-msg');
-  const statusEl = document.getElementById('submit-status');
-  errEl.classList.remove('show');
-  statusEl.classList.remove('show');
-
-  const btn = document.getElementById('submit-btn');
-  btn.disabled = true;
-  btn.innerHTML = 'กำลังตรวจ <span class="dot">·</span><span class="dot">·</span><span class="dot">·</span>';
-
-  const p = PROBLEMS[currentIdx];
-  const r = state[currentIdx].results;
-  let passed = 0, firstErr = null;
-
-  for (let i = 0; i < p.testCases.length; i++) {
-    const tc = p.testCases[i];
-    const inputs = tc.input;
-    try {
-      const inputsJson = JSON.stringify(inputs);
-      const wrapped = `
+async function runCode(code, inputs) {
+  const inputsJson = JSON.stringify(inputs);
+  const wrapped = `
 import sys
 from io import StringIO
 _out = StringIO()
@@ -377,18 +330,102 @@ ${code}
 sys.stdout = sys.__stdout__
 __out__ = _out.getvalue()
 `;
-      await pyodide.runPythonAsync(wrapped);
-      const raw = pyodide.globals.get('__out__');
-      const lines = raw.split('\n').map(l=>l.trim()).filter(l => {
+  await pyodide.runPythonAsync(wrapped);
+  return pyodide.globals.get('__out__');
+}
+
+function parseOutput(raw, checkPrompts) {
+  const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
+  if (checkPrompts) {
+    // แยก prompt lines และ output lines
+    const promptLines  = lines.filter(l => checkPrompts.some(p => l.startsWith(p.trim())));
+    const outputLines  = lines.filter(l => !checkPrompts.some(p => l.startsWith(p.trim())));
+    return { promptLines, outputLine: outputLines[outputLines.length-1] || '' };
+  }
+  // ไม่เช็ค prompt — กรองบรรทัดที่เป็น prompt ออกด้วย heuristic
+  const outputLines = lines.filter(l => !l.includes(': ') || l.startsWith('Area') || l === 'Even' || l === 'Odd');
+  // fallback: เอาบรรทัดสุดท้ายที่ไม่ใช่ input echo
+  const lastLine = lines[lines.length-1] || '';
+  return { promptLines: [], outputLine: lastLine };
+}
+
+async function saveToSheet(name, sid, probIdx, passed, total, code) {
+  if (!SHEET_URL || SHEET_URL === 'YOUR_APPS_SCRIPT_URL_HERE') return;
+  const p = PROBLEMS[probIdx];
+  try {
+    await fetch(SHEET_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        week:   WEEK,
+        name:   name,
+        sid:    sid,
+        probId: p.id,
+        title:  p.title,
+        passed: passed,
+        total:  total,
+        code:   code,
+        time:   new Date().toLocaleString('th-TH'),
+      }),
+    });
+  } catch(e) { console.warn('Sheet save failed:', e); }
+}
+
+async function runTests() {
+  if (!pyReady) return;
+  if (!validate()) return;
+  const code = document.getElementById('code').value;
+  if (!code.trim()) return;
+  state[currentIdx].code = code;
+
+  const errEl    = document.getElementById('error-msg');
+  const promptEl = document.getElementById('prompt-msg');
+  const statusEl = document.getElementById('submit-status');
+  errEl.classList.remove('show');
+  promptEl.classList.remove('show');
+  statusEl.classList.remove('show');
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.innerHTML = 'กำลังตรวจ <span class="dot">·</span><span class="dot">·</span><span class="dot">·</span>';
+
+  const p = PROBLEMS[currentIdx];
+  const r = state[currentIdx].results;
+  let passed = 0, firstErr = null, promptErrors = [];
+
+  for (let i = 0; i < p.testCases.length; i++) {
+    const tc = p.testCases[i];
+    try {
+      const raw = await runCode(code, tc.input);
+
+      if (tc.checkPrompts) {
+        // เช็ค prompt
+        const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
+        const missing = tc.checkPrompts.filter(ep => !lines.some(l => l.startsWith(ep.trim())));
+        if (missing.length > 0) {
+          r[i] = { status: 'prompt-fail' };
+          promptErrors.push(...missing);
+          renderDots(currentIdx);
+          continue;
+        }
+      }
+
+      // กรอง prompt lines ออก เอาบรรทัดสุดท้ายที่ไม่ใช่ prompt
+      const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
+      const outputLines = lines.filter(l => {
         if (!l) return false;
-        // กรองบรรทัด prompt ออก
-    
-           const prompts = ["Enter base:", "Enter height:"];
-           return !prompts.some(p => l.startsWith(p));
+        // ถ้ามี checkPrompts ใช้กรองตรงๆ
+        if (tc.checkPrompts) return !tc.checkPrompts.some(ep => l.startsWith(ep.trim()));
+        // ไม่มี checkPrompts — ใช้ prompt ของ test case แรกที่มี checkPrompts ในข้อนี้
+        const refPrompts = p.testCases.find(t => t.checkPrompts)?.checkPrompts || [];
+        if (refPrompts.length) return !refPrompts.some(ep => l.startsWith(ep.trim()));
+        return true;
       });
-      const got = lines[lines.length-1] || '';
-      r[i] = { status: got===tc.expected?'pass':'fail' };
-      if (got===tc.expected) passed++;
+      const got = outputLines[outputLines.length-1] || '';
+
+      r[i] = { status: got === tc.expected ? 'pass' : 'fail' };
+      if (got === tc.expected) passed++;
     } catch(e) {
       r[i] = { status: 'err' };
       if (!firstErr) firstErr = e.message;
@@ -409,11 +446,14 @@ __out__ = _out.getvalue()
   document.getElementById('sum-emoji').textContent = passed===total?'🎉':passed>0?'💪':'🔍';
 
   if (firstErr) { errEl.textContent = firstErr; errEl.classList.add('show'); }
+  if (promptErrors.length) {
+    promptEl.textContent = '⚠ Prompt ไม่ถูกต้อง — ต้องพิมพ์: ' + [...new Set(promptErrors)].join(', ');
+    promptEl.classList.add('show');
+  }
 
-  // บันทึกลง Google Sheet
   const name = document.getElementById('sname').value.trim();
   const sid  = document.getElementById('sid').value.trim();
-  await saveToSheet(name, sid, currentIdx, passed, total);
+  await saveToSheet(name, sid, currentIdx, passed, total, code);
 
   if (SHEET_URL !== 'YOUR_APPS_SCRIPT_URL_HERE') {
     statusEl.textContent = '✓ บันทึกผลแล้ว';
