@@ -84,7 +84,7 @@ textarea:focus{border-color:rgba(0,0,0,0.4)}
 <body>
 
 <!-- ============================================================
-     แก้เฉพาะส่วนนี้ทุกสัปดาห์
+     edit
      ============================================================ -->
 <script>
 const WEEK       = 1;
@@ -101,7 +101,7 @@ const PROBLEMS = [
       { input: "Enter mins: 1",  output: "60 secs" },
     ],
     testCases: [
-      // checkPrompts = เช็คว่า prompt ถูกต้องไหม (ใส่แค่ 1 test case พอ)
+      
       { input: ["20"], expected: "1200 secs", checkPrompts: ["Enter mins: "] },
       { input: ["1"],   expected: "60 secs" },
       { input: ["60"],  expected: "3600 secs" },
@@ -144,10 +144,32 @@ const PROBLEMS = [
       { input: ["13"],  expected: "Odd" },
     ],
   },
+  {
+    id: 4,
+    title: "ล้างพื้นสนาม",
+    desc: "บริเวณหลังบ้านมีพื้นที่เป็นลานปูกระเบื้องรูปสี่เหลี่ยมผืนผ้า และในลานนี้มีโรงเก็บของ (storage room) ที่ไม่ต้องล้างน้ำ จงเขียนโปรแกรมเพื่อรับความกว้างและยาวของลาน และของโรงเก็บของ (เป็นหน่วยเมตร) เพื่อคำนวณหาค่าใช้จ่ายในการล้างพื้นสนามทั้งหมด โดย <code>อัตราค่าล้างคิดเป็น 25 บาทต่อตารางเมตร</code> (สมมติให้ขนาดของลาน ≥ ขนาดของโรงเก็บของเสมอ)",
+    examples: [
+      { input: "Enter yard length: 15\nEnter yard width: 10\nEnter storage length: 6\nEnter storage width: 4", output: "Washing cost is 3300 baht." },
+    ],
+    testCases: [
+      { input: ["15","10","6","4"], expected: "Washing cost is 3300 baht.",
+        checkPrompts: ["Enter yard length: ", "Enter yard width: ", "Enter storage length: ", "Enter storage width: "] },
+      { input: ["20","10","5","5"], expected: "Washing cost is 4375 baht." },
+      { input: ["10","10","2","2"], expected: "Washing cost is 2400 baht." },
+      { input: ["8","8","4","4"],   expected: "Washing cost is 1200 baht." },
+      { input: ["12","6","3","2"],  expected: "Washing cost is 1650 baht." },
+      { input: ["10","5","5","5"],  expected: "Washing cost is 1250 baht." },
+      { input: ['10', '8', '4', '3'],  expected: "Washing cost is 1700 baht." },
+      { input: ['6', '5', '2', '2'],  expected: "Washing cost is 650 baht." },
+      { input: ['15', '10', '6', '4'],  expected: "Washing cost is 3150 baht."},
+      { input: ['3', '3', '3', '3'],  expected: "Washing cost is 0 baht." },
+      
+    ],
+  },
 ];
 </script>
 <!-- ============================================================
-     จบส่วนที่แก้
+     end
      ============================================================ -->
 
 <div class="week-header">
